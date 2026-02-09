@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>100 DAYS - WANG BO</title>
     
-    <!-- 使用国内最顶级稳定的 BootCDN -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.2.47/vue.global.prod.js"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary-gold: #c4a484;
             --soft-pink: #ffafbd;
-            --text-dark: #2c2c2c;
-            --glass-white: rgba(255, 255, 255, 0.6);
-            --bg-cream: #f9f7f2;
-            --transition-slow: all 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+            --text-dark: #332e2a;
+            --bg-cream: #fdfaf5;
+            --glass-white: rgba(255, 255, 255, 0.7);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,51 +22,96 @@
             background-color: var(--bg-cream);
             color: var(--text-dark);
             font-family: 'Noto Serif SC', serif;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden;
+            display: grid;
+            place-items: center; /* 全局绝对居中 */
         }
 
+        /* 艺术氛围背景 */
         .stage-bg {
             position: fixed;
             inset: 0;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #fffcf8 0%, #f2eee5 100%);
+            background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f4f0e8 100%);
         }
 
-        #app {
-            height: 100vh;
+        .ambient-glow {
+            position: absolute;
+            width: 70vw; height: 70vw;
+            background: var(--soft-pink);
+            filter: blur(100px);
+            border-radius: 50%;
+            opacity: 0.15;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: breathe 10s infinite alternate;
+        }
+
+        @keyframes breathe {
+            from { opacity: 0.1; transform: translate(-50%, -50%) scale(1); }
+            to { opacity: 0.25; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* 场景容器：确保两屏重合 */
+        .viewport {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
             display: grid;
             place-items: center;
         }
 
-        /* 初始隐藏，防止乱码闪烁 */
-        .content-ready { display: block !important; }
-        .container {
-            width: 90%;
-            max-width: 600px;
+        /* 场景公用样式 */
+        .scene {
+            position: absolute;
+            width: 100%;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
-            position: relative;
         }
 
-        .photo-wrap {
-            width: 160px;
-            height: 200px;
-            background: white;
-            margin: 0 auto 2.5rem;
-            padding: 10px 10px 35px 10px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
-            transform: rotate(-2deg);
-            border: 1px solid rgba(0,0,0,0.02);
+        /* 封面场景 */
+        #intro-scene {
+            z-index: 10;
+            opacity: 1;
+            transform: scale(1);
         }
-        .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-        .glass-view {
+        .btn-open {
+            background: none;
+            border: 1px solid var(--primary-gold);
+            padding: 1.2rem 3rem;
+            color: var(--primary-gold);
+            letter-spacing: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.4s;
+            text-indent: 6px; /* 抵消字母间距实现真正的视觉对齐 */
+        }
+        .btn-open:hover {
+            background: var(--primary-gold);
+            color: white;
+            box-shadow: 0 10px 20px rgba(196, 164, 132, 0.2);
+        }
+
+        /* 主内容场景 */
+        #content-scene {
+            z-index: 5;
+            opacity: 0;
+            transform: translateY(40px);
+            visibility: hidden;
+        }
+
+        .glass-card {
             background: var(--glass-white);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             padding: 3rem 2rem;
-            border-radius: 4px;
+            border-radius: 2px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.03);
+            position: relative;
         }
 
         .bg-number {
@@ -78,134 +119,155 @@
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             font-family: 'Playfair Display', serif;
-            font-size: 20rem;
+            font-size: 18rem;
             font-style: italic;
             color: var(--primary-gold);
             opacity: 0.08;
-            z-index: 1;
+            z-index: -1;
             pointer-events: none;
         }
 
+        /* 照片 */
+        .photo-wrap {
+            width: 150px;
+            height: 190px;
+            background: white;
+            margin: 0 auto 2rem;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            transform: rotate(-2deg);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
         .meta-tag {
-            font-size: 0.75rem;
-            letter-spacing: 0.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.4rem;
             color: var(--primary-gold);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             display: block;
         }
 
         .message-body {
-            font-size: 1.1rem;
-            line-height: 2.5;
-            color: #3d3d3d;
+            font-size: 1.05rem;
+            line-height: 2.4;
+            letter-spacing: 0.05rem;
+            color: #444;
             text-align: justify;
-            min-height: 150px;
+            min-height: 140px;
+            margin-bottom: 2rem;
         }
 
-        .timer-group {
+        /* 计时器单元 */
+        .timer-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin-top: 3rem;
             border-top: 1px solid rgba(0,0,0,0.05);
             padding-top: 2rem;
         }
-        .timer-unit b { font-family: 'Playfair Display', serif; font-size: 1.8rem; display: block; }
-        .timer-unit label { font-size: 0.6rem; color: var(--primary-gold); text-transform: uppercase; }
+        .timer-unit b { font-family: 'Playfair Display', serif; font-size: 1.6rem; display: block; font-weight: 400; }
+        .timer-unit label { font-size: 0.55rem; color: var(--primary-gold); text-transform: uppercase; letter-spacing: 2px; }
 
-        .signature { margin-top: 3.5rem; font-family: 'Playfair Display', serif; font-size: 1.2rem; font-style: italic; }
+        .signature {
+            margin-top: 3rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
 
-        .btn-open {
-            background: none;
-            border: 1px solid var(--primary-gold);
-            padding: 1rem 3rem;
-            color: var(--primary-gold);
-            letter-spacing: 4px;
-            cursor: pointer;
-            font-size: 0.85rem;
+        /* 状态激活切换 */
+        .fade-out { opacity: 0 !important; transform: scale(1.1) !important; visibility: hidden; }
+        .fade-in { opacity: 1 !important; transform: translateY(0) !important; visibility: visible !important; }
+
+        @media (max-width: 600px) {
+            .bg-number { font-size: 10rem; }
+            .viewport { height: auto; }
         }
     </style>
 </head>
 <body>
 
-    <div class="stage-bg"></div>
+    <div class="stage-bg"><div class="ambient-glow"></div></div>
 
-    <div id="app" style="display: none;" class="content-ready">
-        <!-- 封面场景 -->
-        <div v-if="state === 'intro'" key="intro" class="container">
-            <button class="btn-open" @click="enter">开启 100 天纪念</button>
+    <div id="app" class="viewport">
+        <!-- 封面入口 -->
+        <div id="intro-scene" class="scene">
+            <button class="btn-open" onclick="startSurprise()">开启 100 天纪念</button>
+            <p style="margin-top: 20px; font-size: 0.7rem; color: #bbb; letter-spacing: 2px;">FROM WANG BO</p>
         </div>
 
-        <!-- 内容场景 -->
-        <div v-else-if="state === 'content'" key="content" class="container">
+        <!-- 主内容卡片 -->
+        <div id="content-scene" class="scene">
             <div class="bg-number">100</div>
-            <div class="glass-view">
-                <div class="photo-wrap"><img src="us.jpg"></div>
+            <div class="glass-card">
+                <div class="photo-wrap">
+                    <img src="us.jpg" alt="OUR PHOTO">
+                </div>
                 <span class="meta-tag">SINCE 2025.11.04</span>
-                <div class="message-body">{{ typedText }}|</div>
-                <div class="timer-group">
-                    <div class="timer-unit"><b>{{ timer.d }}</b><label>Days</label></div>
-                    <div class="timer-unit"><b>{{ timer.h }}</b><label>Hrs</label></div>
-                    <div class="timer-unit"><b>{{ timer.m }}</b><label>Min</label></div>
-                    <div class="timer-unit"><b>{{ timer.s }}</b><label>Sec</label></div>
+                <div class="message-body" id="text-target"></div>
+                <div class="timer-grid">
+                    <div class="timer-unit"><b id="d">0</b><label>Days</label></div>
+                    <div class="timer-unit"><b id="h">0</b><label>Hrs</label></div>
+                    <div class="timer-unit"><b id="m">0</b><label>Min</label></div>
+                    <div class="timer-unit"><b id="s">0</b><label>Sec</label></div>
                 </div>
                 <div class="signature">Yours, Wang Bo</div>
             </div>
         </div>
-
-        <audio id="bgm" loop preload="auto">
-            <source src="https://music.163.com/song/media/outer/url?id=536622304.mp3" type="audio/mpeg">
-        </audio>
     </div>
 
+    <!-- 背景音乐 -->
+    <audio id="bgm" loop preload="auto">
+        <source src="https://music.163.com/song/media/outer/url?id=536622304.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-        // 增加容错机制
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Vue === 'undefined') {
-                document.body.innerHTML = "<div style='padding:50px; text-align:center;'>页面加载中，请稍后并刷新...</div>";
-                location.reload();
-                return;
-            }
+        const startDate = new Date('2025-11-04T00:00:00');
+        const letterText = "这一百天，我不曾写过华丽的诗。我只是在清晨的阳光里想起你，在日落的余晖中等待你。2025年11月4日，那是我生命中最重要的转折点。王博想和你一起，慢慢喜欢你，慢慢陪你虚度剩下的所有时光。纪念日快乐！";
 
-            const { createApp, ref, reactive, onMounted } = Vue;
-            createApp({
-                setup() {
-                    const state = ref('intro');
-                    const typedText = ref("");
-                    const timer = reactive({ d: 0, h: 0, m: 0, s: 0 });
-                    const startDate = new Date('2025-11-04T00:00:00');
-                    const fullText = "这一百天，我不曾写过华丽的诗。我只是在清晨的阳光里想起你，在日落的余晖中等待你。2025年11月4日，那是我生命中最重要的转折点。王博想和你一起，慢慢喜欢你，慢慢陪你虚度剩下的所有时光。纪念日快乐！";
+        // 更新计时器函数
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            document.getElementById('d').innerText = Math.floor(diff / 86400000);
+            document.getElementById('h').innerText = Math.floor((diff % 86400000) / 3600000);
+            document.getElementById('m').innerText = Math.floor((diff % 3600000) / 60000);
+            document.getElementById('s').innerText = Math.floor((diff % 60000) / 1000);
+        }
 
-                    const updateTimer = () => {
-                        const now = new Date();
-                        const diff = now - startDate;
-                        timer.d = Math.floor(diff / 86400000);
-                        timer.h = Math.floor((diff % 86400000) / 3600000);
-                        timer.m = Math.floor((diff % 3600000) / 60000);
-                        timer.s = Math.floor((diff % 60000) / 1000);
-                    };
+        // 核心进入函数
+        function startSurprise() {
+            // 播放音乐
+            const audio = document.getElementById('bgm');
+            audio.play().catch(e => console.log("Music blocked"));
 
-                    const enter = () => {
-                        state.value = 'content';
-                        const audio = document.getElementById('bgm');
-                        audio.play().catch(() => {});
-                        let i = 0;
-                        const interval = setInterval(() => {
-                            typedText.value += fullText[i];
-                            i++;
-                            if (i >= fullText.length) clearInterval(interval);
-                        }, 120);
-                    };
+            // 执行转场动画
+            const intro = document.getElementById('intro-scene');
+            const content = document.getElementById('content-scene');
+            
+            intro.classList.add('fade-out');
+            
+            setTimeout(() => {
+                content.classList.add('fade-in');
+                startTyping();
+            }, 1000); // 1秒后淡入新内容
+        }
 
-                    onMounted(() => {
-                        updateTimer();
-                        setInterval(updateTimer, 1000);
-                    });
+        // 打字机逻辑
+        function startTyping() {
+            let i = 0;
+            const target = document.getElementById('text-target');
+            const interval = setInterval(() => {
+                target.innerText += letterText[i];
+                i++;
+                if (i >= letterText.length) clearInterval(interval);
+            }, 120);
+        }
 
-                    return { state, timer, typedText, enter };
-                }
-            }).mount('#app');
-        });
+        // 初始化
+        updateTimer();
+        setInterval(updateTimer, 1000);
     </script>
 </body>
 </html>
